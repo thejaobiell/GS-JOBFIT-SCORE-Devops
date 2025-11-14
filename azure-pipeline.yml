@@ -6,35 +6,49 @@ pool:
 
 variables:
   - group: jobfitscore-secrets
-
   - name: RESOURCE_GROUP
     value: "gs-jobfitscore"
-
+  - name: LOCATION
+    value: "brazilsouth"
+  - name: ACI_NAME
+    value: "jobfitscore-db"
   - name: ACI_APP_NAME
     value: "jobfitscore-app"
-
+  - name: CONTAINER_IMAGE
+    value: "postgres:16-alpine"
+  - name: DOCKER_REGISTRY
+    value: "index.docker.io"
   - name: DOCKER_IMAGE_NAME
     value: "$(DOCKERHUB_USER)/jobfitscore-app"
-
   - name: DOCKER_IMAGE_TAG
     value: "$(Build.BuildId)"
-
   - name: MAVEN_CACHE_FOLDER
     value: "$(Pipeline.Workspace)/.m2/repository"
-
   - name: MAVEN_OPTS
     value: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
 
 stages:
-# =====================================================================
-# 1. BUILD E TESTES
-# =====================================================================
+
+# --------------------- Build e Testes ---------------------
 - stage: BuildAndTest
   displayName: "Build e Testes"
+
   jobs:
     - job: BuildTestApp
+      displayName: "Build/Testes da Aplicação"
       steps:
         - checkout: self
+        - task: AzureCLI@2
+        displayName: "Obter IP do PostgreSQL"
+        name: GetDBIP
+        inputs:
+          azureSubscription: "jobfitscore-connection"
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: |
+            DB_IP=$(az container show --resource-group $(RESOURCE_GROUP) --name $(ACI_NAME) --query ipAddress.ip -o tsv)
+            echo "DB_IP obtida: $DB_IP"
+            echo "##vso[task.setvariable variable=DB_IP;isOutput=true]$DB_IP"
 
         - task: Cache@2
           displayName: "Cache Maven"
@@ -52,23 +66,11 @@ stages:
             jdkArchitectureOption: "x64"
             jdkSourceOption: "PreInstalled"
 
-        - task: AzureCLI@2
-          displayName: "Obter IP do PostgreSQL"
-          name: GetDBIP
-          inputs:
-            azureSubscription: "jobfitscore-connection"
-            scriptType: bash
-            scriptLocation: inlineScript
-            inlineScript: |
-              DB_IP=$(az container show --resource-group $(RESOURCE_GROUP) --name $(ACI_NAME) --query ipAddress.ip -o tsv)
-              echo "DB_IP obtida: $DB_IP"
-              echo "##vso[task.setvariable variable=DB_IP;isOutput=true]$DB_IP"
-
         - task: Maven@4
           displayName: "Build Maven"
           env:
             DB_HOST: $(GetDBIP.DB_IP)
-            DB_PORT: 5432
+            DB_PORT: "5432"
             DB_NAME: $(DB_NAME)
             DB_USER: $(DB_USER)
             DB_PASSWORD: $(DB_PASSWORD)
@@ -78,14 +80,13 @@ stages:
             goals: "clean package -B"
             mavenOptions: "$(MAVEN_OPTS)"
 
-# =====================================================================
-# 2. BUILD DOCKER + PUSH
-# =====================================================================
+# --------------------- Build Docker e Push ---------------------
 - stage: BuildDocker
   displayName: "Build Docker e Push"
   dependsOn: BuildAndTest
   jobs:
     - job: BuildPushDocker
+      displayName: "Build/Push Docker"
       steps:
         - checkout: self
 
@@ -99,6 +100,7 @@ stages:
 
         - script: |
             docker buildx create --name jobfitscore-builder --driver docker-container --use || true
+            docker buildx use jobfitscore-builder
           displayName: "Configurar Buildx"
 
         - script: |
@@ -123,25 +125,43 @@ stages:
             docker push $(DOCKER_IMAGE_NAME):latest
           displayName: "Push Docker"
 
-# =====================================================================
-# 3. DEPLOY
-# =====================================================================
+# --------------------- Deploy em ACI ---------------------
 - stage: Deploy
-  displayName: "Deploy no Azure Container Instances"
-  dependsOn: BuildDocker
+  dependsOn:
+    - BuildDocker
+  displayName: "Deploy em Azure Container Instances"
   jobs:
     - job: DeployACI
+      displayName: "Deploy ACI"
       steps:
         - checkout: none
 
         - task: AzureCLI@2
-          displayName: "Deploy App"
+          displayName: "Validar DB_IP"
+          inputs:
+            azureSubscription: "jobfitscore-connection"
+            scriptType: bash
+            scriptLocation: inlineScript
+            inlineScript: |
+              if [ -z "$(DB_IP)" ]; then
+                echo "Erro: DB_IP vazia"
+                exit 1
+              fi
+              echo "DB_IP: $(DB_IP)"
+
+        - task: AzureCLI@2
+          displayName: "Deploy App no ACI"
           inputs:
             azureSubscription: "jobfitscore-connection"
             scriptType: bash
             scriptLocation: inlineScript
             inlineScript: |
               set -e
+
+              DB_IP_VALUE=$(BuildAndTest.BuildTestApp.GetDBIP.DB_IP)
+              DOCKER_USER=$(DOCKERHUB_USER)
+              DOCKER_PASS=$(DOCKERHUB_PASSWORD)
+              DB_PASSWORD=$(DB_PASSWORD)
 
               echo "Deploy da aplicação..."
 
@@ -157,22 +177,24 @@ stages:
                 --name $(ACI_APP_NAME) \
                 --image "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" \
                 --ports 8080 \
-                --dns-name-label "jobfitscore-app" \
-                --ip-address public \
                 --os-type Linux \
                 --cpu 1 --memory 1.5 \
+                --dns-name-label "jobfitscore-app" \
+                --ip-address public \
                 --environment-variables \
-                  DB_HOST="$(DB_IP)" \
-                  DB_PORT="$(DB_PORT)" \
+                  DB_HOST="$DB_IP_VALUE" \
+                  DB_PORT="5432" \
                   DB_NAME="$(DB_NAME)" \
                   DB_USER="$(DB_USER)" \
-                  DB_PASSWORD="$(DB_PASSWORD)" \
+                  DB_PASSWORD="$DB_PASSWORD" \
                   SERVER_PORT="8080" \
-                --restart-policy Always
+                --restart-policy Always \
+                --registry-login-server $(DOCKER_REGISTRY) \
+                --registry-username $DOCKER_USER \
+                --registry-password $DOCKER_PASS
 
-              APP_URL=$(az container show \
-                --resource-group $(RESOURCE_GROUP) \
-                --name $(ACI_APP_NAME) \
-                --query "ipAddress.fqdn" -o tsv)
+              sleep 10
 
-              echo "URL: http://$APP_URL:8080"
+              APP_FQDN=$(az container show --resource-group $(RESOURCE_GROUP) --name $(ACI_APP_NAME) --query ipAddress.fqdn -o tsv)
+              echo "URL: http://$APP_FQDN:8080"
+              echo "##vso[task.setvariable variable=APP_URL]http://$APP_FQDN:8080"
