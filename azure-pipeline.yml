@@ -148,11 +148,12 @@ stages:
             scriptType: bash
             scriptLocation: inlineScript
             inlineScript: |
-              if [ -z "$(DB_IP)" ]; then
+              DB_IP_VALUE=$[ stageDependencies.BuildAndTest.BuildTestApp.outputs['GetDBIP.DB_IP'] ]
+              if [ -z "$DB_IP_VALUE" ]; then
                 echo "Erro: DB_IP vazia"
                 exit 1
               fi
-              echo "DB_IP: $(DB_IP)"
+              echo "DB_IP: $DB_IP_VALUE"
 
         - task: AzureCLI@2
           displayName: "Deploy App no ACI"
@@ -162,7 +163,7 @@ stages:
             scriptLocation: inlineScript
             inlineScript: |
               set -e
-              DB_IP_VALUE=$(DB_IP)
+              DB_IP_VALUE=$[ stageDependencies.BuildAndTest.BuildTestApp.outputs['GetDBIP.DB_IP'] ]
               DOCKER_USER=$(DOCKERHUB_USER)
               DOCKER_PASS=$(DOCKERHUB_PASSWORD)
               DB_PASSWORD=$(DB_PASSWORD)
