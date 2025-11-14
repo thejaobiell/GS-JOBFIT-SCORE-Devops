@@ -52,6 +52,18 @@ stages:
             jdkArchitectureOption: "x64"
             jdkSourceOption: "PreInstalled"
 
+        - task: AzureCLI@2
+          displayName: "Obter IP do PostgreSQL"
+          name: GetDBIP
+          inputs:
+            azureSubscription: "jobfitscore-connection"
+            scriptType: bash
+            scriptLocation: inlineScript
+            inlineScript: |
+              DB_IP=$(az container show --resource-group $(RESOURCE_GROUP) --name $(ACI_NAME) --query ipAddress.ip -o tsv)
+              echo "DB_IP obtida: $DB_IP"
+              echo "##vso[task.setvariable variable=DB_IP;isOutput=true]$DB_IP"
+
         - task: Maven@4
           displayName: "Build Maven"
           env:
