@@ -133,8 +133,6 @@ stages:
 - stage: Deploy
   displayName: "Deploy em Azure Container Instances"
   dependsOn: BuildDocker
-  variables:
-    DB_IP: $[ stageDependencies.BuildAndTest.BuildTestApp.outputs['GetDBIP.DB_IP'] ]
   jobs:
     - job: DeployACI
       displayName: "Deploy ACI"
