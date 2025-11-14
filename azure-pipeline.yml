@@ -6,128 +6,33 @@ pool:
 
 variables:
   - group: jobfitscore-secrets
+
   - name: RESOURCE_GROUP
     value: "gs-jobfitscore"
-  - name: LOCATION
-    value: "brazilsouth"
-  - name: ACI_NAME
-    value: "jobfitscore-db"
+
   - name: ACI_APP_NAME
     value: "jobfitscore-app"
-  - name: CONTAINER_IMAGE
-    value: "postgres:16-alpine"
-  - name: DOCKER_REGISTRY
-    value: "index.docker.io"
+
   - name: DOCKER_IMAGE_NAME
     value: "$(DOCKERHUB_USER)/jobfitscore-app"
+
   - name: DOCKER_IMAGE_TAG
     value: "$(Build.BuildId)"
+
   - name: MAVEN_CACHE_FOLDER
     value: "$(Pipeline.Workspace)/.m2/repository"
+
   - name: MAVEN_OPTS
     value: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
 
 stages:
-
-# --------------------- Banco de Dados ---------------------
-- stage: BancoDados
-  displayName: "Provisionar Banco PostgreSQL"
-  jobs:
-    - job: CriarPostgres
-      displayName: "Criar Container PostgreSQL"
-      steps:
-        - checkout: self
-
-        - task: AzureCLI@2
-          displayName: "Provisionar PostgreSQL no ACI"
-          name: ProvisarPostgres
-          inputs:
-            azureSubscription: "jobfitscore-connection"
-            scriptType: bash
-            scriptLocation: inlineScript
-            inlineScript: |
-              set -e
-
-              DB_USER=$(DB_USER)
-              DB_PASSWORD=$(DB_PASSWORD)
-              DB_NAME=$(DB_NAME)
-
-              DOCKER_USER=$(DOCKERHUB_USER)
-              DOCKER_PASS=$(DOCKERHUB_PASSWORD)
-
-              echo "Criando resource group..."
-              az group show --name $RESOURCE_GROUP >/dev/null 2>&1 || \
-              az group create --name $RESOURCE_GROUP --location $LOCATION
-
-              echo "Verificando container PostgreSQL..."
-              if ! az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME >/dev/null 2>&1; then
-                echo "Criando container PostgreSQL..."
-
-                az container create \
-                  --resource-group $RESOURCE_GROUP \
-                  --name $ACI_NAME \
-                  --image $CONTAINER_IMAGE \
-                  --ports 5432 \
-                  --os-type Linux \
-                  --cpu 1 --memory 1.5 \
-                  --dns-name-label "${ACI_NAME}-dns-${BUILD_BUILDID}" \
-                  --ip-address public \
-                  --environment-variables \
-                    POSTGRES_DB="$DB_NAME" \
-                    POSTGRES_USER="$DB_USER" \
-                    POSTGRES_PASSWORD="$DB_PASSWORD" \
-                  --restart-policy Always \
-                  --registry-login-server index.docker.io \
-                  --registry-username $DOCKER_USER \
-                  --registry-password $DOCKER_PASS
-              fi
-
-              echo "Aguardando PostgreSQL disponibilizar IP..."
-              TIMEOUT=300
-              ELAPSED=0
-              DB_IP=""
-
-              while [ -z "$DB_IP" ] && [ $ELAPSED -lt $TIMEOUT ]; do
-                DB_IP=$(az container show --resource-group $RESOURCE_GROUP --name $ACI_NAME --query ipAddress.ip -o tsv 2>/dev/null || echo "")
-                if [ -z "$DB_IP" ]; then
-                  sleep 5
-                  ELAPSED=$((ELAPSED + 5))
-                  echo "Aguardando IP... ($ELAPSED/$TIMEOUT segundos)"
-                fi
-              done
-
-              if [ -z "$DB_IP" ]; then
-                echo "Erro: Timeout aguardando IP."
-                exit 1
-              fi
-
-              echo "IP obtido: $DB_IP"
-
-              echo "Validando conectividade com PostgreSQL..."
-              RETRY=0
-              while ! nc -z -w 5 $DB_IP 5432 2>/dev/null && [ $RETRY -lt 60 ]; do
-                echo "Tentativa $((RETRY + 1))/60..."
-                sleep 5
-                RETRY=$((RETRY + 1))
-              done
-
-              if [ $RETRY -eq 60 ]; then
-                echo "Erro: PostgreSQL não respondeu."
-                exit 1
-              fi
-
-              echo "PostgreSQL pronto em $DB_IP:5432"
-              echo "##vso[task.setvariable variable=DB_IP;isOutput=true]$DB_IP"
-
-# --------------------- Build e Testes ---------------------
+# =====================================================================
+# 1. BUILD E TESTES
+# =====================================================================
 - stage: BuildAndTest
   displayName: "Build e Testes"
-  dependsOn: BancoDados
-  variables:
-    DB_IP: $[ stageDependencies.BancoDados.CriarPostgres.outputs['ProvisarPostgres.DB_IP'] ]
   jobs:
     - job: BuildTestApp
-      displayName: "Build/Testes da Aplicação"
       steps:
         - checkout: self
 
@@ -144,26 +49,12 @@ stages:
           displayName: "Instalar Java 21"
           inputs:
             versionSpec: "21"
-            jdkArchitectureOption: "x64"
-            jdkSourceOption: "PreInstalled"
-
-        - task: AzureCLI@2
-          displayName: "Obter IP do PostgreSQL"
-          name: GetDBIP
-          inputs:
-            azureSubscription: "jobfitscore-connection"
-            scriptType: bash
-            scriptLocation: inlineScript
-            inlineScript: |
-              DB_IP=$(az container show --resource-group $(RESOURCE_GROUP) --name $(ACI_NAME) --query ipAddress.ip -o tsv)
-              echo "DB_IP obtida: $DB_IP"
-              echo "##vso[task.setvariable variable=DB_IP;isOutput=true]$DB_IP"
 
         - task: Maven@4
           displayName: "Build Maven"
           env:
-            DB_HOST: $(GetDBIP.DB_IP)
-            DB_PORT: "5432"
+            DB_HOST: $(DB_IP)
+            DB_PORT: $(DB_PORT)
             DB_NAME: $(DB_NAME)
             DB_USER: $(DB_USER)
             DB_PASSWORD: $(DB_PASSWORD)
@@ -173,13 +64,14 @@ stages:
             goals: "clean package -B"
             mavenOptions: "$(MAVEN_OPTS)"
 
-# --------------------- Build Docker e Push ---------------------
+# =====================================================================
+# 2. BUILD DOCKER + PUSH
+# =====================================================================
 - stage: BuildDocker
   displayName: "Build Docker e Push"
   dependsOn: BuildAndTest
   jobs:
     - job: BuildPushDocker
-      displayName: "Build/Push Docker"
       steps:
         - checkout: self
 
@@ -193,7 +85,6 @@ stages:
 
         - script: |
             docker buildx create --name jobfitscore-builder --driver docker-container --use || true
-            docker buildx use jobfitscore-builder
           displayName: "Configurar Buildx"
 
         - script: |
@@ -205,7 +96,7 @@ stages:
               --tag $(DOCKER_IMAGE_NAME):latest \
               --load \
               .
-          displayName: "Build Docker Image"
+          displayName: "Build Docker"
 
         - task: Docker@2
           displayName: "Login Docker Hub"
@@ -218,46 +109,25 @@ stages:
             docker push $(DOCKER_IMAGE_NAME):latest
           displayName: "Push Docker"
 
-# --------------------- Deploy em ACI ---------------------
+# =====================================================================
+# 3. DEPLOY
+# =====================================================================
 - stage: Deploy
-  dependsOn:
-    - BancoDados
-    - BuildDocker
-  displayName: "Deploy em Azure Container Instances"
-  variables:
-    DB_IP: $[ stageDependencies.BancoDados.CriarPostgres.outputs['ProvisarPostgres.DB_IP'] ]
+  displayName: "Deploy no Azure Container Instances"
+  dependsOn: BuildDocker
   jobs:
     - job: DeployACI
-      displayName: "Deploy ACI"
       steps:
         - checkout: none
 
         - task: AzureCLI@2
-          displayName: "Validar DB_IP"
-          inputs:
-            azureSubscription: "jobfitscore-connection"
-            scriptType: bash
-            scriptLocation: inlineScript
-            inlineScript: |
-              if [ -z "$(DB_IP)" ]; then
-                echo "Erro: DB_IP vazia"
-                exit 1
-              fi
-              echo "DB_IP: $(DB_IP)"
-
-        - task: AzureCLI@2
-          displayName: "Deploy App no ACI"
+          displayName: "Deploy App"
           inputs:
             azureSubscription: "jobfitscore-connection"
             scriptType: bash
             scriptLocation: inlineScript
             inlineScript: |
               set -e
-
-              DB_IP_VALUE=$(DB_IP)
-              DOCKER_USER=$(DOCKERHUB_USER)
-              DOCKER_PASS=$(DOCKERHUB_PASSWORD)
-              DB_PASSWORD=$(DB_PASSWORD)
 
               echo "Deploy da aplicação..."
 
@@ -273,24 +143,22 @@ stages:
                 --name $(ACI_APP_NAME) \
                 --image "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" \
                 --ports 8080 \
-                --os-type Linux \
-                --cpu 1 --memory 1.5 \
                 --dns-name-label "jobfitscore-app" \
                 --ip-address public \
+                --os-type Linux \
+                --cpu 1 --memory 1.5 \
                 --environment-variables \
-                  DB_HOST="$DB_IP_VALUE" \
-                  DB_PORT="5432" \
+                  DB_HOST="$(DB_IP)" \
+                  DB_PORT="$(DB_PORT)" \
                   DB_NAME="$(DB_NAME)" \
                   DB_USER="$(DB_USER)" \
-                  DB_PASSWORD="$DB_PASSWORD" \
+                  DB_PASSWORD="$(DB_PASSWORD)" \
                   SERVER_PORT="8080" \
-                --restart-policy Always \
-                --registry-login-server $(DOCKER_REGISTRY) \
-                --registry-username $DOCKER_USER \
-                --registry-password $DOCKER_PASS
+                --restart-policy Always
 
-              sleep 10
+              APP_URL=$(az container show \
+                --resource-group $(RESOURCE_GROUP) \
+                --name $(ACI_APP_NAME) \
+                --query "ipAddress.fqdn" -o tsv)
 
-              APP_FQDN=$(az container show --resource-group $(RESOURCE_GROUP) --name $(ACI_APP_NAME) --query ipAddress.fqdn -o tsv)
-              echo "URL: http://$APP_FQDN:8080"
-              echo "##vso[task.setvariable variable=APP_URL]http://$APP_FQDN:8080"
+              echo "URL: http://$APP_URL:8080"
