@@ -32,13 +32,11 @@ stages:
 # --------------------- Build e Testes ---------------------
 - stage: BuildAndTest
   displayName: "Build e Testes"
-
   jobs:
     - job: BuildTestApp
       displayName: "Build/Testes da Aplicação"
       steps:
         - checkout: self
-        - task: AzureCLI@2
 
         - task: AzureCLI@2
           displayName: "Obter IP do PostgreSQL"
@@ -49,6 +47,10 @@ stages:
             scriptLocation: inlineScript
             inlineScript: |
               DB_IP=$(az container show --resource-group $(RESOURCE_GROUP) --name $(ACI_NAME) --query ipAddress.ip -o tsv)
+              if [ -z "$DB_IP" ]; then
+                echo "Erro: Não foi possível obter DB_IP"
+                exit 1
+              fi
               echo "DB_IP obtida: $DB_IP"
               echo "##vso[task.setvariable variable=DB_IP;isOutput=true]$DB_IP"
 
@@ -129,9 +131,10 @@ stages:
 
 # --------------------- Deploy em ACI ---------------------
 - stage: Deploy
-  dependsOn:
-    - BuildDocker
   displayName: "Deploy em Azure Container Instances"
+  dependsOn: BuildDocker
+  variables:
+    DB_IP: $[ stageDependencies.BuildAndTest.BuildTestApp.outputs['GetDBIP.DB_IP'] ]
   jobs:
     - job: DeployACI
       displayName: "Deploy ACI"
@@ -159,8 +162,7 @@ stages:
             scriptLocation: inlineScript
             inlineScript: |
               set -e
-
-              DB_IP_VALUE=$[ stageDependencies.BuildAndTest.BuildTestApp.outputs['GetDBIP.DB_IP'] ]
+              DB_IP_VALUE=$(DB_IP)
               DOCKER_USER=$(DOCKERHUB_USER)
               DOCKER_PASS=$(DOCKERHUB_PASSWORD)
               DB_PASSWORD=$(DB_PASSWORD)
