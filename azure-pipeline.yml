@@ -129,7 +129,6 @@ stages:
             docker push $(DOCKER_IMAGE_NAME):latest
           displayName: "Push Docker"
 
-# --------------------- Deploy em ACI ---------------------
 - stage: Deploy
   displayName: "Deploy em Azure Container Instances"
   dependsOn: BuildDocker
@@ -139,7 +138,6 @@ stages:
       steps:
         - checkout: none
 
-        # ---------------- Obter DB_IP ----------------
         - task: AzureCLI@2
           displayName: "Obter IP do PostgreSQL"
           name: GetDBIP
@@ -156,22 +154,6 @@ stages:
               echo "DB_IP obtida: $DB_IP"
               echo "##vso[task.setvariable variable=DB_IP;isOutput=true]$DB_IP"
 
-        # ---------------- Validar DB_IP ----------------
-        - task: AzureCLI@2
-          displayName: "Validar DB_IP"
-          inputs:
-            azureSubscription: "jobfitscore-connection"
-            scriptType: bash
-            scriptLocation: inlineScript
-            inlineScript: |
-              DB_IP_VALUE=$[ dependencies.DeployACI.outputs['GetDBIP.DB_IP'] ]
-              if [ -z "$DB_IP_VALUE" ]; then
-                echo "Erro: DB_IP vazia"
-                exit 1
-              fi
-              echo "DB_IP: $DB_IP_VALUE"
-
-        # ---------------- Deploy App no ACI ----------------
         - task: AzureCLI@2
           displayName: "Deploy App no ACI"
           inputs:
