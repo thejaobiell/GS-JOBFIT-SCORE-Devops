@@ -49,12 +49,14 @@ stages:
           displayName: "Instalar Java 21"
           inputs:
             versionSpec: "21"
+            jdkArchitectureOption: "x64"
+            jdkSourceOption: "PreInstalled"
 
         - task: Maven@4
           displayName: "Build Maven"
           env:
-            DB_HOST: $(DB_IP)
-            DB_PORT: $(DB_PORT)
+            DB_HOST: $(GetDBIP.DB_IP)
+            DB_PORT: 5432
             DB_NAME: $(DB_NAME)
             DB_USER: $(DB_USER)
             DB_PASSWORD: $(DB_PASSWORD)
@@ -96,7 +98,7 @@ stages:
               --tag $(DOCKER_IMAGE_NAME):latest \
               --load \
               .
-          displayName: "Build Docker"
+          displayName: "Build Docker Image"
 
         - task: Docker@2
           displayName: "Login Docker Hub"
