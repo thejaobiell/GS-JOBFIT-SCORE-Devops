@@ -1,0 +1,1240 @@
+{
+	"info": {
+		"_postman_id": "a3d21483-bc56-4746-bfe7-aee541da74cf",
+		"name": "JobFit-Score",
+		"description": "<table><tbody><tr><td><div><a rel=\"noreferrer noopener nofollow\" href=\"https://github.com/thejaobiell\" target=\"_blank\" url=\"https://github.com/thejaobiell\"><figure editor=\"[object Object]\"><div contenteditable=\"false\"><div><img src=\"https://github.com/thejaobiell.png\" alt=\"\"><div><div></div><div><div></div></div><div></div><div><div></div></div><div></div><div></div><div></div><div></div></div></div></div></figure><p><b>João Gabriel Boaventura</b><br>RM554874 • 2TDSB2025<br></p></a></div><div contenteditable=\"false\"><div><div><div></div></div></div><div></div></div></td><td><div><a rel=\"noreferrer noopener nofollow\" href=\"https://github.com/leomotalima\" target=\"_blank\" url=\"https://github.com/leomotalima\"><figure editor=\"[object Object]\"><div contenteditable=\"false\"><div><img src=\"https://github.com/leomotalima.png\" alt=\"\"><div><div></div><div><div></div></div><div></div><div><div></div></div><div></div><div></div><div></div><div></div></div></div></div></figure><p><b>Léo Mota Lima</b><br>RM557851 • 2TDSB2025<br></p></a></div><div contenteditable=\"false\"><div><div><div></div></div></div><div></div></div></td><td><div><a rel=\"noreferrer noopener nofollow\" href=\"https://github.com/LucasLDC\" target=\"_blank\" url=\"https://github.com/LucasLDC\"><figure editor=\"[object Object]\"><div contenteditable=\"false\"><div><img src=\"https://github.com/LucasLDC.png\" alt=\"\"><div><div></div><div><div></div></div><div></div><div><div></div></div><div></div><div></div><div></div><div></div></div></div></div></figure><p><b>Lucas Leal das Chagas</b><br>RM551124 • 2TDSB2025<br></p></a></div><div contenteditable=\"false\"><div><div><div></div></div></div><div></div></div></td></tr></tbody></table>",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39334205",
+		"_collection_link": "https://galactic-resonance-365575.postman.co/workspace/Global-Solution-JobFit-Score~91636554-3599-4b17-b403-66a491691e74/collection/39334205-a3d21483-bc56-4746-bfe7-aee541da74cf?action=share&source=collection_link&creator=39334205"
+	},
+	"item": [
+		{
+			"name": "0-JWT",
+			"item": [
+				{
+					"name": "Pegar o JWT",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"joao.gabriel@jobfitscore.com\",\n  \"senha\": \"joaogab\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/autenticacao/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"autenticacao",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "1-Usuarios",
+			"item": [
+				{
+					"name": "GET ALL - Usuarios",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/usuarios/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuarios",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID - Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/usuarios/buscar-por-id/2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuarios",
+								"buscar-por-id",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - Usuarios",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vinicius\",\n    \"email\": \"vini@email.com\",\n    \"senha\": \"vinisenha123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/usuarios/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuarios",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - Usuarios",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Vinicius Atualizado\",\n    \"email\": \"viniatualizado@email.com\",\n    \"senha\": \"vinisenha123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/usuarios/atualizar/2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuarios",
+								"atualizar",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - Usuarios",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/usuarios/deletar/2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuarios",
+								"deletar",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2-Empresas",
+			"item": [
+				{
+					"name": "GET ALL - Empresas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/empresas/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"empresas",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID - Empresas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/empresas/buscar-por-id/2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"empresas",
+								"buscar-por-id",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY CNPJ - Empresas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/empresas/buscar-por-cnpj?cnpj=12345678000199",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"empresas",
+								"buscar-por-cnpj"
+							],
+							"query": [
+								{
+									"key": "cnpj",
+									"value": "12345678000199"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - Empresas",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"TechSolutions\",\n    \"cnpj\": \"12345678000199\",\n    \"email\": \"contato@techsolutions.com\",\n    \"senha\": \"senha1234\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/empresas/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"empresas",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - Empresas",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"TechSolutions Atualizada\",\n    \"email\": \"novoemail@techsolutions.com\",\n    \"senha\": \"novaSenha123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/empresas/atualizar/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"empresas",
+								"atualizar",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - Empresas",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/empresas/deletar/2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"empresas",
+								"deletar",
+								"2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3-Vagas",
+			"item": [
+				{
+					"name": "GET ALL - Vagas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vagas/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vagas",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID - Vagas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vagas/buscar-por-id/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vagas",
+								"buscar-por-id",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - Vagas",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Desenvolvedor Python Junior\",\n    \"empresaId\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/vagas/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vagas",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - Vagas",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"titulo\": \"Desenvolvedor Python Senior\",\n    \"empresaId\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/vagas/atualizar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vagas",
+								"atualizar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - Vagas",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vagas/deletar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vagas",
+								"deletar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4-Habilidades",
+			"item": [
+				{
+					"name": "GET ALL - Habilidades",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/habilidades/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"habilidades",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID - Habilidades",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/habilidades/buscar-por-id/3",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"habilidades",
+								"buscar-por-id",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - Habilidades",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Python\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/habilidades/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"habilidades",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - Habilidades",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Python - Pandas\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/habilidades/atualizar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"habilidades",
+								"atualizar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - Habilidades",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/habilidades/deletar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"habilidades",
+								"deletar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5-UsuarioHabilidades",
+			"item": [
+				{
+					"name": "GET ALL - UsuarioHabilidades",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/usuario-habilidade/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario-habilidade",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID - UsuarioHabilidades",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/usuario-habilidade/buscar-por-id/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario-habilidade",
+								"buscar-por-id",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY USUARIO - UsuarioHabilidades",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/usuario-habilidade/buscar-por-usuario/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario-habilidade",
+								"buscar-por-usuario",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - UsuarioHabilidades",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuarioId\": 1,\n    \"habilidadeId\": 2\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/usuario-habilidade/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario-habilidade",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - UsuarioHabilidades",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Python - Pandas\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/usuario-habilidade/atualizar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario-habilidade",
+								"atualizar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - UsuarioHabilidades",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/usuario-habilidade/deletar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"usuario-habilidade",
+								"deletar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6-Curso",
+			"item": [
+				{
+					"name": "GET ALL - Cursos",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/cursos/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cursos",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID - Cursos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/cursos/buscar-por-id/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cursos",
+								"buscar-por-id",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY USUARIO - Cursos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/cursos/buscar-por-usuario/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cursos",
+								"buscar-por-usuario",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - Cursos",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Desenvolvimento Web Avançado\",\n    \"instituicao\": \"Alura\",\n    \"cargaHoraria\": 80,\n    \"usuarioId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/cursos/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cursos",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - Cursos",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Desenvolvimento Full Stack\",\n  \"instituicao\": \"FIAP\",\n  \"cargaHoraria\": 120,\n  \"usuarioId\": 1\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/cursos/atualizar/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cursos",
+								"atualizar",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - Cursos",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/cursos/deletar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"cursos",
+								"deletar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7-Candidaturas",
+			"item": [
+				{
+					"name": "GET ALL - Candidaturas",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/candidaturas/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID - Candidaturas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/candidaturas/buscar-por-id/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"buscar-por-id",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY VAGA - Candidaturas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/candidaturas/buscar-por-vaga?vagaId=1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"buscar-por-vaga"
+							],
+							"query": [
+								{
+									"key": "vagaId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY USUARIO - Candidaturas Copy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/candidaturas/buscar-por-usuario/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"buscar-por-usuario",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - Candidaturas",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuarioId\": 1,\n    \"vagaId\": 1,\n    \"status\": \"Em Análise\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/candidaturas/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - Candidaturas",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuarioId\": 1,\n    \"vagaId\": 1,\n    \"status\": \"Reprovado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/candidaturas/atualizar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"atualizar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - Candidaturas",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/candidaturas/deletar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"deletar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8-VagaHabilidade",
+			"item": [
+				{
+					"name": "GET ALL - VagaHabilidade",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vaga-habilidade/listar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vaga-habilidade",
+								"listar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY VAGA - VagaHabilidade",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vaga-habilidade/buscar-por-vaga?vagaId=1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vaga-habilidade",
+								"buscar-por-vaga"
+							],
+							"query": [
+								{
+									"key": "vagaId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET BY ID Habilidade - VagaHabilidade",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vaga-habilidade/buscar-por-habilidade?habilidadeId=3",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vaga-habilidade",
+								"buscar-por-habilidade"
+							],
+							"query": [
+								{
+									"key": "habilidadeId",
+									"value": "3"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CADASTRAR - VagaHabilidade",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vagaId\": 1,\n    \"habilidadeId\": 3\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/vaga-habilidade/cadastrar",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vaga-habilidade",
+								"cadastrar"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ATUALIZAR - VagaHabilidade",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuarioId\": 1,\n    \"vagaId\": 1,\n    \"status\": \"Reprovado\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/candidaturas/atualizar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"candidaturas",
+								"atualizar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETAR - VagaHabilidade",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/vaga-habilidade/deletar/4",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"vaga-habilidade",
+								"deletar",
+								"4"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"requests": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:8080/api",
+			"description": "url:8080/api"
+		},
+		{
+			"key": "jwt",
+			"value": "<substitua>",
+			"description": "token JWT(token de acesso)"
+		},
+		{
+			"key": "refreshtoken",
+			"value": "<substitua>",
+			"description": "token de renovação do JWT"
+		}
+	]
+}
