@@ -7,7 +7,7 @@ pool:
 variables:
   - group: jobfitscore-secrets
   - name: RESOURCE_GROUP
-    value: "gs-jobfitscore"
+    value: "jobfitscore-rg"
   - name: LOCATION
     value: "brazilsouth"
   - name: ACI_NAME
