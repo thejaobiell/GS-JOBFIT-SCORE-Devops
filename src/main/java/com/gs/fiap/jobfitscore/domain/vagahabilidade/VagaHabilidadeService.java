@@ -51,6 +51,19 @@ public class VagaHabilidadeService {
 				.collect(Collectors.toList());
 	}
 	
+	public VagaHabilidadeDTO atualizar(Long id, VagaHabilidadeDTO dto) {
+		VagaHabilidade vh = vhR.findById(id)
+				.orElseThrow(() -> new EntityNotFoundException("VagaHabilidade não encontrada"));
+		var vaga = vR.findById(dto.getVagaId())
+				.orElseThrow(() -> new EntityNotFoundException("Vaga não encontrada"));
+		var habilidade = hR.findById(dto.getHabilidadeId())
+				.orElseThrow(() -> new EntityNotFoundException("Habilidade não encontrada"));
+		vh.setVaga(vaga);
+		vh.setHabilidade(habilidade);
+		VagaHabilidade salvo = vhR.save(vh);
+		return VagaHabilidadeDTO.fromEntity(salvo);
+	}
+	
 	public void deletar(Long id) {
 		vhR.deleteById(id);
 	}

@@ -41,6 +41,13 @@ public class UsuarioHabilidadeController {
 		UsuarioHabilidadeDTO criado = uhS.cadastrar(dto);
 		return ResponseEntity.status(201).body(criado);
 	}
+
+	@PutMapping("/atualizar/{id}")
+	public ResponseEntity<UsuarioHabilidadeDTO> atualizar(@PathVariable Long id, @Valid @RequestBody UsuarioHabilidadeDTO dto) {
+		UsuarioHabilidadeDTO atualizado = uhS.atualizar(id, dto);
+		return ResponseEntity.ok(atualizado);
+	}
+	
 	
 	@DeleteMapping("/deletar/{id}")
 	public ResponseEntity<Void> deletar(@PathVariable Long id) {

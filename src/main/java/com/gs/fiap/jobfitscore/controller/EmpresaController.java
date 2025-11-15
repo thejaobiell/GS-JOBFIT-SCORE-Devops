@@ -36,10 +36,16 @@ public class EmpresaController {
 		return ResponseEntity.ok(empresa);
 	}
 	
+	@PostMapping("/cadastrar")
+	public ResponseEntity<EmpresaDTO> criar(@RequestBody Empresa empresa) {
+		EmpresaDTO criada = eS.criarEmpresa(empresa);
+		return ResponseEntity.status(201).body(criada);
+	}
+	
 	@PutMapping("/atualizar/{id}")
 	public ResponseEntity<EmpresaDTO> atualizar(@PathVariable Long id, @RequestBody Empresa empresa) {
 		EmpresaDTO atualizada = eS.atualizarEmpresa(id, empresa);
-		return ResponseEntity.ok(atualizada); // 200 OK
+		return ResponseEntity.ok(atualizada); 
 	}
 	
 	@DeleteMapping("/deletar/{id}")

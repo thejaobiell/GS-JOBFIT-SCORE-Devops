@@ -41,8 +41,7 @@ public class UsuarioHabilidadeService {
 				.map(UsuarioHabilidadeDTO::fromEntity)
 				.collect(Collectors.toList());
 	}
-	
-	
+
 	public UsuarioHabilidadeDTO cadastrar(UsuarioHabilidadeDTO dto) {
 		Usuario usuario = uR.findById(dto.getUsuarioId())
 				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -51,7 +50,18 @@ public class UsuarioHabilidadeService {
 		UsuarioHabilidade uh = new UsuarioHabilidade(null, usuario, habilidade);
 		return UsuarioHabilidadeDTO.fromEntity(uhR.save(uh));
 	}
-	
+
+	public UsuarioHabilidadeDTO atualizar(Long id, UsuarioHabilidadeDTO dto) {
+		UsuarioHabilidade uh = uhR.findById(id)
+				.orElseThrow(() -> new RuntimeException("Relação não encontrada"));
+		Usuario usuario = uR.findById(dto.getUsuarioId())
+				.orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+		Habilidade habilidade = hR.findById(dto.getHabilidadeId())
+				.orElseThrow(() -> new RuntimeException("Habilidade não encontrada"));
+		uh.setUsuario(usuario);
+		uh.setHabilidade(habilidade);
+		return UsuarioHabilidadeDTO.fromEntity(uhR.save(uh));
+	}
 	public void deletar(Long id) {
 		uhR.deleteById(id);
 	}

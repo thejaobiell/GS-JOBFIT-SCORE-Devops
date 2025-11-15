@@ -36,7 +36,7 @@ public class EmpresaService {
 	}
 	
 	@Transactional
-	public EmpresaDTO salvarEmpresa(Empresa empresa) {
+	public EmpresaDTO criarEmpresa(Empresa empresa) {
 		empresa.setSenha(encoder.encode(empresa.getSenha()));
 		Empresa salvo = repository.save(empresa);
 		return EmpresaDTO.fromEntity(salvo);
