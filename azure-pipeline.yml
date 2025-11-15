@@ -180,7 +180,13 @@ stages:
                 exit 1
               fi
 
+              # Obter credenciais do ACR
+              echo "Obtendo credenciais do ACR..."
+              ACR_USERNAME=$(az acr credential show --name $(ACR_NAME) --query username -o tsv)
+              ACR_PASSWORD=$(az acr credential show --name $(ACR_NAME) --query passwords[0].value -o tsv)
+
               # Deletar container existente (se houver)
+              echo "Deletando container existente (se houver)..."
               az container delete \
                 --resource-group $(RESOURCE_GROUP) \
                 --name $(ACI_APP_NAME) \
@@ -188,7 +194,8 @@ stages:
 
               sleep 5
 
-              # Criar container usando imagem do ACR com identidade gerenciada
+              # Criar container usando imagem do ACR com credenciais
+              echo "Criando novo container..."
               az container create \
                 --resource-group $(RESOURCE_GROUP) \
                 --name $(ACI_APP_NAME) \
@@ -206,7 +213,9 @@ stages:
                   DB_PASSWORD="$DB_PASSWORD" \
                   SERVER_PORT="8080" \
                 --restart-policy Always \
-                --acr-identity $(ACR_NAME)
+                --registry-login-server "$(ACR_LOGIN_SERVER)" \
+                --registry-username "$ACR_USERNAME" \
+                --registry-password "$ACR_PASSWORD"
 
               sleep 10
 
