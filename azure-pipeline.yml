@@ -16,10 +16,13 @@ variables:
     value: "jobfitscore-app"
   - name: CONTAINER_IMAGE
     value: "postgres:16-alpine"
-  - name: DOCKER_REGISTRY
-    value: "index.docker.io"
+  # Configurações ACR
+  - name: ACR_NAME
+    value: "jobfitscoreacr"  # Altere para o nome do seu ACR (apenas letras e números, sem hífens)
+  - name: ACR_LOGIN_SERVER
+    value: "jobfitscoreacr.azurecr.io"  # Será automaticamente: $(ACR_NAME).azurecr.io
   - name: DOCKER_IMAGE_NAME
-    value: "$(DOCKERHUB_USER)/jobfitscore-app"
+    value: "jobfitscore-app"
   - name: DOCKER_IMAGE_TAG
     value: "$(Build.BuildId)"
   - name: MAVEN_CACHE_FOLDER
@@ -84,13 +87,13 @@ stages:
             goals: "clean package -B"
             mavenOptions: "$(MAVEN_OPTS)"
 
-# --------------------- Build Docker e Push ---------------------
+# --------------------- Build Docker e Push para ACR ---------------------
 - stage: BuildDocker
-  displayName: "Build Docker e Push"
+  displayName: "Build Docker e Push para ACR"
   dependsOn: BuildAndTest
   jobs:
     - job: BuildPushDocker
-      displayName: "Build/Push Docker"
+      displayName: "Build/Push Docker para ACR"
       steps:
         - checkout: self
 
@@ -102,6 +105,15 @@ stages:
             restoreKeys: |
               docker | "$(Agent.OS)"
 
+        - task: AzureCLI@2
+          displayName: "Login no ACR"
+          inputs:
+            azureSubscription: "jobfitscore-connection"
+            scriptType: bash
+            scriptLocation: inlineScript
+            inlineScript: |
+              az acr login --name $(ACR_NAME)
+
         - script: |
             docker buildx create --name jobfitscore-builder --driver docker-container --use || true
             docker buildx use jobfitscore-builder
@@ -112,23 +124,18 @@ stages:
               --cache-from=type=local,src=$(Pipeline.Workspace)/docker_cache \
               --cache-to=type=local,dest=$(Pipeline.Workspace)/docker_cache,mode=max \
               --file dockerfiles/Dockerfile \
-              --tag $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) \
-              --tag $(DOCKER_IMAGE_NAME):latest \
+              --tag $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) \
+              --tag $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):latest \
               --load \
               .
           displayName: "Build Docker Image"
 
-        - task: Docker@2
-          displayName: "Login Docker Hub"
-          inputs:
-            command: login
-            containerRegistry: dockerhubConnection
-
         - script: |
-            docker push $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
-            docker push $(DOCKER_IMAGE_NAME):latest
-          displayName: "Push Docker"
+            docker push $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
+            docker push $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):latest
+          displayName: "Push para ACR"
 
+# --------------------- Deploy ---------------------
 - stage: Deploy
   displayName: "Deploy em Azure Container Instances"
   dependsOn: BuildDocker
@@ -155,7 +162,7 @@ stages:
               echo "##vso[task.setvariable variable=DB_IP_DEPLOY]$DB_IP"
 
         - task: AzureCLI@2
-          displayName: "Deploy App no ACI"
+          displayName: "Deploy App no ACI usando ACR"
           inputs:
             azureSubscription: "jobfitscore-connection"
             scriptType: bash
@@ -164,8 +171,6 @@ stages:
               set -e
               
               DB_IP_VALUE="$(DB_IP_DEPLOY)"
-              DOCKER_USER=$(DOCKERHUB_USER)
-              DOCKER_PASS=$(DOCKERHUB_PASSWORD)
               DB_PASSWORD=$(DB_PASSWORD)
 
               echo "Deploy da aplicação com DB_IP: $DB_IP_VALUE"
@@ -175,6 +180,7 @@ stages:
                 exit 1
               fi
 
+              # Deletar container existente (se houver)
               az container delete \
                 --resource-group $(RESOURCE_GROUP) \
                 --name $(ACI_APP_NAME) \
@@ -182,10 +188,11 @@ stages:
 
               sleep 5
 
+              # Criar container usando imagem do ACR com identidade gerenciada
               az container create \
                 --resource-group $(RESOURCE_GROUP) \
                 --name $(ACI_APP_NAME) \
-                --image "$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" \
+                --image "$(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)" \
                 --ports 8080 \
                 --os-type Linux \
                 --cpu 1 --memory 1.5 \
@@ -199,9 +206,7 @@ stages:
                   DB_PASSWORD="$DB_PASSWORD" \
                   SERVER_PORT="8080" \
                 --restart-policy Always \
-                --registry-login-server $(DOCKER_REGISTRY) \
-                --registry-username $DOCKER_USER \
-                --registry-password $DOCKER_PASS
+                --acr-identity $(ACR_NAME)
 
               sleep 10
 
