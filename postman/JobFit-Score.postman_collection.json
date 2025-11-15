@@ -21,7 +21,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"joao.gabriel@jobfitscore.com\",\n  \"senha\": \"joaogab\"\n}",
+							"raw": "{\n  \"email\": \"admin@jobfitscore.com\",\n  \"senha\": \"admin\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -36,6 +36,36 @@
 							"path": [
 								"autenticacao",
 								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar o JWT",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refreshToken\": {{refreshtoken}}\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/autenticacao/atualizar-token",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"autenticacao",
+								"atualizar-token"
 							]
 						}
 					},
@@ -482,14 +512,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}/habilidades/buscar-por-id/3",
+							"raw": "{{url}}/habilidades/buscar-por-id/4",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
 								"habilidades",
 								"buscar-por-id",
-								"3"
+								"4"
 							]
 						}
 					},
@@ -674,7 +704,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"nome\": \"Python - Pandas\"\n}\n",
+							"raw": "{\n    \"usuarioId\": 1,\n    \"habilidadeId\": 3\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1143,7 +1173,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"usuarioId\": 1,\n    \"vagaId\": 1,\n    \"status\": \"Reprovado\"\n}",
+							"raw": "{\n    \"vagaId\": 1,\n    \"habilidadeId\": 3\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -1151,12 +1181,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}/candidaturas/atualizar/4",
+							"raw": "{{url}}/vaga-habilidade/atualizar/4",
 							"host": [
 								"{{url}}"
 							],
 							"path": [
-								"candidaturas",
+								"vaga-habilidade",
 								"atualizar",
 								"4"
 							]
@@ -1223,17 +1253,17 @@
 	"variable": [
 		{
 			"key": "url",
-			"value": "http://localhost:8080/api",
+			"value": "http://jobfitscore-app.brazilsouth.azurecontainer.io:8080/api",
 			"description": "url:8080/api"
 		},
 		{
 			"key": "jwt",
-			"value": "<substitua>",
+			"value": "JWT",
 			"description": "token JWT(token de acesso)"
 		},
 		{
 			"key": "refreshtoken",
-			"value": "<substitua>",
+			"value": "RefreshToken",
 			"description": "token de renovação do JWT"
 		}
 	]

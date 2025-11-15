@@ -102,9 +102,6 @@ print_step "Configurando permissões do ACR..."
 
 SUBSCRIPTION_ID=$(az account show --query id -o tsv)
 
-print_warning "Certifique-se de ter um Service Connection configurado no Azure DevOps"
-print_warning "Nome recomendado: 'jobfitscore-connection'"
-
 echo ""
 echo "============================================"
 print_success "INFRAESTRUTURA CRIADA COM SUCESSO!"
