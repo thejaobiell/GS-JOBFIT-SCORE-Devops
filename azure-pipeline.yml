@@ -18,9 +18,9 @@ variables:
     value: "postgres:16-alpine"
   # Configurações ACR
   - name: ACR_NAME
-    value: "jobfitscoreacr"  # Altere para o nome do seu ACR (apenas letras e números, sem hífens)
+    value: "jobfitscoreacr"
   - name: ACR_LOGIN_SERVER
-    value: "jobfitscoreacr.azurecr.io"  # Será automaticamente: $(ACR_NAME).azurecr.io
+    value: "jobfitscoreacr.azurecr.io"
   - name: DOCKER_IMAGE_NAME
     value: "jobfitscore-app"
   - name: DOCKER_IMAGE_TAG
@@ -86,6 +86,17 @@ stages:
             mavenPomFile: "pom.xml"
             goals: "clean package -B"
             mavenOptions: "$(MAVEN_OPTS)"
+            publishJUnitResults: false
+
+        - task: PublishTestResults@2
+          displayName: "Publicar Resultados dos Testes JUnit"
+          condition: succeededOrFailed()
+          inputs:
+            testResultsFormat: 'JUnit'
+            testResultsFiles: '**/target/surefire-reports/TEST-*.xml'
+            mergeTestResults: true
+            failTaskOnFailedTests: true
+            testRunTitle: 'Testes JUnit - JobFitScore'
 
 # --------------------- Build Docker e Push para ACR ---------------------
 - stage: BuildDocker
