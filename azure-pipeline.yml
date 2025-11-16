@@ -98,6 +98,11 @@ stages:
             failTaskOnFailedTests: true
             testRunTitle: 'Testes JUnit - JobFitScore'
 
+        - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: "target/*.jar"
+          ArtifactName: "jobfitscore"
+
 # --------------------- Build Docker e Push para ACR ---------------------
 - stage: BuildDocker
   displayName: "Build Docker e Push para ACR"
