@@ -98,10 +98,19 @@ stages:
             failTaskOnFailedTests: true
             testRunTitle: 'Testes JUnit - JobFitScore'
 
-        - task: PublishBuildArtifacts@1
+        - task: CopyFiles@2
+          displayName: "Copiar JAR para staging"
           inputs:
-            PathtoPublish: "target/*.jar"
+            SourceFolder: "$(System.DefaultWorkingDirectory)/target"
+            Contents: "*.jar"
+            TargetFolder: "$(Build.ArtifactStagingDirectory)"
+            
+        - task: PublishBuildArtifacts@1
+          displayName: "Publicar Artefato JAR"
+          inputs:
+            PathtoPublish: "$(Build.ArtifactStagingDirectory)"
             ArtifactName: "jobfitscore"
+            publishLocation: "Container"
 
 # --------------------- Build Docker e Push para ACR ---------------------
 - stage: BuildDocker
