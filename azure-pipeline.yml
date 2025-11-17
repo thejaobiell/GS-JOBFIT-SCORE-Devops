@@ -28,6 +28,8 @@ variables:
     value: "$(Pipeline.Workspace)/.m2/repository"
   - name: MAVEN_OPTS
     value: "-Dmaven.repo.local=$(MAVEN_CACHE_FOLDER)"
+  - name: DOCKER_BUILDKIT
+    value: "1"
 
 stages:
 
@@ -121,14 +123,6 @@ stages:
       steps:
         - checkout: self
 
-        - task: Cache@2
-          displayName: "Cache Docker"
-          inputs:
-            key: 'docker | "$(Agent.OS)" | dockerfiles/Dockerfile'
-            path: $(Pipeline.Workspace)/docker_cache
-            restoreKeys: |
-              docker | "$(Agent.OS)"
-
         - task: AzureCLI@2
           displayName: "Login no ACR"
           inputs:
@@ -139,17 +133,48 @@ stages:
               az acr login --name $(ACR_NAME)
 
         - script: |
-            docker build \
+            set -e
+            
+            echo "Habilitando Docker BuildKit..."
+            export DOCKER_BUILDKIT=1
+            
+            CACHE_IMAGE="$(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):buildcache"
+            
+            echo "Tentando puxar imagem de cache..."
+            docker pull $CACHE_IMAGE || echo "Cache não encontrado, será criado um novo"
+            
+            echo "Construindo imagem Docker com cache..."
+            docker buildx build \
               --file dockerfiles/Dockerfile \
+              --cache-from $CACHE_IMAGE \
               --tag $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) \
               --tag $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):latest \
+              --tag $CACHE_IMAGE \
+              --build-arg BUILDKIT_INLINE_CACHE=1 \
+              --progress=plain \
               .
-          displayName: "Build Docker Image"
+            
+            echo "Build concluído com sucesso!"
+          displayName: "Build Docker Image com Cache"
+          env:
+            DOCKER_BUILDKIT: 1
 
         - script: |
+            set -e
+            
+            echo "Fazendo push das imagens..."
             docker push $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG)
             docker push $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):latest
-          displayName: "Push para ACR"
+            docker push $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):buildcache
+            
+            echo "Push concluído com sucesso!"
+          displayName: "Push para ACR (incluindo cache)"
+
+        - script: |
+            echo "Limpando imagens Docker locais..."
+            docker system prune -af --volumes || true
+          displayName: "Limpar Cache Local Docker"
+          condition: always()
 
 # --------------------- Deploy ---------------------
 - stage: Deploy
@@ -196,12 +221,10 @@ stages:
                 exit 1
               fi
 
-              # Obter credenciais do ACR
               echo "Obtendo credenciais do ACR..."
               ACR_USERNAME=$(az acr credential show --name $(ACR_NAME) --query username -o tsv)
               ACR_PASSWORD=$(az acr credential show --name $(ACR_NAME) --query passwords[0].value -o tsv)
 
-              # Deletar container existente (se houver)
               echo "Deletando container existente (se houver)..."
               az container delete \
                 --resource-group $(RESOURCE_GROUP) \
