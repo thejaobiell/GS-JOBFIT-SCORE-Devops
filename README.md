@@ -8,8 +8,9 @@
   [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-blue.svg?style=for-the-badge&logo=postgresql)](https://www.postgresql.org/)
   [![Azure](https://img.shields.io/badge/Azure-Container_Instances-0089D6.svg?style=for-the-badge&logo=microsoftazure)](https://azure.microsoft.com/)
   
-  [🎥 Ver Demonstração]( ) • 
+  [🎥 Ver Demonstração](https://www.youtube.com/watch?v=vVunpSIx4bk) • 
   [📚 Repositório](https://github.com/thejaobiell/GS-JOBFIT-SCORE-Devops) • 
+  [🔷 Azure Devops](https://dev.azure.com/RM554874/GlobalSolution-JobFit-Score) • 
   [🚀 Deploy](http://jobfitscore-app.brazilsouth.azurecontainer.io:8080/)
   
 </div>

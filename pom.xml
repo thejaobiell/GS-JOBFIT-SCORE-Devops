@@ -122,6 +122,7 @@
                         <exclude>scripts/**</exclude>
                         <exclude>**/*.md</exclude>
                         <exclude>**/README.md</exclude>
+                        <exclude>**/Documentacao_JobFit-Score.pdf/**</exclude>
                         <exclude>**/ativar-pipeline.txt</exclude>
                         <exclude>**/azure-pipelines.yml</exclude>
                         <exclude>**/.git/**</exclude>
