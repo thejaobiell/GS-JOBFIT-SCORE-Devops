@@ -16,7 +16,6 @@ variables:
     value: "jobfitscore-app"
   - name: CONTAINER_IMAGE
     value: "postgres:16-alpine"
-  # Configurações ACR
   - name: ACR_NAME
     value: "jobfitscoreacr"
   - name: ACR_LOGIN_SERVER
@@ -140,18 +139,10 @@ stages:
               az acr login --name $(ACR_NAME)
 
         - script: |
-            docker buildx create --name jobfitscore-builder --driver docker-container --use || true
-            docker buildx use jobfitscore-builder
-          displayName: "Configurar Buildx"
-
-        - script: |
-            docker buildx build \
-              --cache-from=type=local,src=$(Pipeline.Workspace)/docker_cache \
-              --cache-to=type=local,dest=$(Pipeline.Workspace)/docker_cache,mode=max \
+            docker build \
               --file dockerfiles/Dockerfile \
               --tag $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) \
               --tag $(ACR_LOGIN_SERVER)/$(DOCKER_IMAGE_NAME):latest \
-              --load \
               .
           displayName: "Build Docker Image"
 
