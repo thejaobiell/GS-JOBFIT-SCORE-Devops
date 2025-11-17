@@ -30,8 +30,8 @@ public class StartupLogger {
 				 ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝╚═╝  ╚═══╝╚══════╝╚═╝
 				""" + RESET );
 		
-		System.out.println( CYAN + "Clique aqui para acessar o aplicação:   " + RED + "http://localhost:8080" + RESET + "\n" );
-		System.out.println( BLUE + "Clique aqui para acessar o Swagger UI:   " + RED + "http://localhost:8080/swagger-ui/index.html" + RESET );
+		System.out.println( CYAN + "Clique aqui para acessar o aplicação:   " + RED + "http://jobfitscore-app.brazilsouth.azurecontainer.io:8080/" + RESET + "\n" );
+		System.out.println( BLUE + "Clique aqui para acessar o Swagger UI:   " + RED + "http://jobfitscore-app.brazilsouth.azurecontainer.io:8080/swagger-ui/index.html" + RESET );
 		System.out.println( RED + "_____________________________________________________________" + RESET + "\n" );
 	}
 	
