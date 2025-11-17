@@ -114,6 +114,51 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <excludes>
+                        <exclude>scripts/**</exclude>
+                        <exclude>**/*.md</exclude>
+                        <exclude>**/README.md</exclude>
+                        <exclude>**/ativar-pipeline.txt</exclude>
+                        <exclude>**/azure-pipelines.yml</exclude>
+                        <exclude>**/.git/**</exclude>
+                        <exclude>**/.gitignore</exclude>
+                        <exclude>**/.gitatrributes</exclude>
+                        <exclude>**/Dockerfile</exclude>
+                        <exclude>**/.dockerignore</exclude>
+                        <exclude>**/dockerfiles/**</exclude>
+                        <exclude>**/.vscode/**</exclude>
+                        <exclude>**/.idea/**</exclude>
+                        <exclude>**/*.iml</exclude>
+                        <exclude>**/*.log</exclude>
+                        <exclude>**/*.tmp</exclude>
+                        <exclude>**/.DS_Store</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}</directory>
+                            <includes>
+                                <include>**/*.log</include>
+                                <include>**/*.tmp</include>
+                                <include>**/.DS_Store</include>
+                            </includes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
