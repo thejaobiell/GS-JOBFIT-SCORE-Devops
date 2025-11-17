@@ -268,8 +268,13 @@ cd ..
 
 nano ativar-pipeline.txt
 ```
-> A duração da execução da pipeline pode durar de 6 a 10 minutos.
->> Acesse o [Azure Devops](https://dev.azure.com/RM554874/GlobalSolution-JobFit-Score) para mais detalhes
+>Ctrl+O para salvar e Ctrl+X para sair
+
+
+>> A duração da execução da pipeline pode durar de 6 a 10 minutos.
+
+
+>>> Acesse o [Azure Devops](https://dev.azure.com/RM554874/GlobalSolution-JobFit-Score) para mais detalhes
 
 
 #### Conexão com o Banco de dados no VSCode 
@@ -365,9 +370,422 @@ Content-Type: application/json
 }
 ```
 
-### 📚 Endpoints Principais
+### 📚 Endpoints da API
 
-PREENCHA AQUI!
+## 👤 Usuários
+
+### Listar Usuários
+```http
+GET /api/usuarios/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por ID
+```http
+GET /api/usuarios/buscar-por-id/{id}
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Usuário
+```http
+POST /api/usuarios/cadastrar
+Content-Type: application/json
+
+{
+  "nome": "João Silva",
+  "email": "joao@email.com",
+  "senha": "senha123"
+}
+```
+
+### Atualizar Usuário
+```http
+PUT /api/usuarios/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "nome": "João Silva Atualizado",
+  "email": "joao.novo@email.com",
+  "senha": "novaSenha123"
+}
+```
+
+### Deletar Usuário
+```http
+DELETE /api/usuarios/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
+
+---
+
+## 🏢 Empresas
+
+### Listar Empresas
+```http
+GET /api/empresas/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por ID
+```http
+GET /api/empresas/buscar-por-id/{id}
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por CNPJ
+```http
+GET /api/empresas/buscar-por-cnpj?cnpj=12345678000199
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Empresa
+```http
+POST /api/empresas/cadastrar
+Content-Type: application/json
+
+{
+  "nome": "TechSolutions",
+  "cnpj": "12345678000199",
+  "email": "contato@techsolutions.com",
+  "senha": "senha123"
+}
+```
+
+### Atualizar Empresa
+```http
+PUT /api/empresas/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "nome": "TechSolutions Atualizada",
+  "email": "novoemail@techsolutions.com",
+  "senha": "novaSenha123"
+}
+```
+
+### Deletar Empresa
+```http
+DELETE /api/empresas/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
+
+---
+
+## 💼 Vagas
+
+### Listar Vagas
+```http
+GET /api/vagas/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por ID
+```http
+GET /api/vagas/buscar-por-id/{id}
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Vaga
+```http
+POST /api/vagas/cadastrar
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "titulo": "Desenvolvedor Java Pleno",
+  "empresaId": 1
+}
+```
+
+### Atualizar Vaga
+```http
+PUT /api/vagas/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "titulo": "Desenvolvedor Java Senior",
+  "empresaId": 1
+}
+```
+
+### Deletar Vaga
+```http
+DELETE /api/vagas/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
+
+---
+
+## 🎯 Habilidades
+
+### Listar Habilidades
+```http
+GET /api/habilidades/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por ID
+```http
+GET /api/habilidades/buscar-por-id/{id}
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Habilidade
+```http
+POST /api/habilidades/cadastrar
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "nome": "Java"
+}
+```
+
+### Atualizar Habilidade
+```http
+PUT /api/habilidades/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "nome": "Java - Spring Boot"
+}
+```
+
+### Deletar Habilidade
+```http
+DELETE /api/habilidades/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
+
+---
+
+## 🔗 Usuário-Habilidade
+
+### Listar Usuário-Habilidades
+```http
+GET /api/usuario-habilidade/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por ID
+```http
+GET /api/usuario-habilidade/buscar-por-id/{id}
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por Usuário
+```http
+GET /api/usuario-habilidade/buscar-por-usuario/{idUsuario}
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Usuário-Habilidade
+```http
+POST /api/usuario-habilidade/cadastrar
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "habilidadeId": 2
+}
+```
+
+### Atualizar Usuário-Habilidade
+```http
+PUT /api/usuario-habilidade/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "habilidadeId": 3
+}
+```
+
+### Deletar Usuário-Habilidade
+```http
+DELETE /api/usuario-habilidade/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
+
+---
+
+## 📚 Cursos
+
+### Listar Cursos
+```http
+GET /api/cursos/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por ID
+```http
+GET /api/cursos/buscar-por-id/{id}
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por Usuário
+```http
+GET /api/cursos/buscar-por-usuario/{idUsuario}
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Curso
+```http
+POST /api/cursos/cadastrar
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "nome": "Desenvolvimento Web Avançado",
+  "instituicao": "Alura",
+  "cargaHoraria": 80,
+  "usuarioId": 1
+}
+```
+
+### Atualizar Curso
+```http
+PUT /api/cursos/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "nome": "Desenvolvimento Full Stack",
+  "instituicao": "FIAP",
+  "cargaHoraria": 120,
+  "usuarioId": 1
+}
+```
+
+### Deletar Curso
+```http
+DELETE /api/cursos/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
+
+---
+
+## 📋 Candidaturas
+
+### Listar Candidaturas
+```http
+GET /api/candidaturas/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por ID
+```http
+GET /api/candidaturas/buscar-por-id/{id}
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por Vaga
+```http
+GET /api/candidaturas/buscar-por-vaga?vagaId=1
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por Usuário
+```http
+GET /api/candidaturas/buscar-por-usuario/{idUsuario}
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Candidatura
+```http
+POST /api/candidaturas/cadastrar
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "vagaId": 1,
+  "status": "Em Análise"
+}
+```
+
+**Status disponíveis:**
+- `Em Análise`
+- `Aprovado`
+- `Reprovado`
+- `Em Processo`
+
+### Atualizar Candidatura
+```http
+PUT /api/candidaturas/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "usuarioId": 1,
+  "vagaId": 1,
+  "status": "Aprovado"
+}
+```
+
+### Deletar Candidatura
+```http
+DELETE /api/candidaturas/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
+
+---
+
+## 🔗 Vaga-Habilidade
+
+### Listar Vaga-Habilidades
+```http
+GET /api/vaga-habilidade/listar
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por Vaga
+```http
+GET /api/vaga-habilidade/buscar-por-vaga?vagaId=1
+Authorization: Bearer {{jwt}}
+```
+
+### Buscar por Habilidade
+```http
+GET /api/vaga-habilidade/buscar-por-habilidade?habilidadeId=3
+Authorization: Bearer {{jwt}}
+```
+
+### Cadastrar Vaga-Habilidade
+```http
+POST /api/vaga-habilidade/cadastrar
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "vagaId": 1,
+  "habilidadeId": 3
+}
+```
+
+### Atualizar Vaga-Habilidade
+```http
+PUT /api/vaga-habilidade/atualizar/{id}
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "vagaId": 1,
+  "habilidadeId": 4
+}
+```
+
+### Deletar Vaga-Habilidade
+```http
+DELETE /api/vaga-habilidade/deletar/{id}
+Authorization: Bearer {{jwt}}
+```
 
 ### 📊 Status HTTP
 
@@ -440,8 +858,6 @@ PREENCHA AQUI!
 ### 🛡️ Proteções Implementadas
 
 ```
-✅ CSRF Protection
-✅ XSS Prevention
 ✅ SQL Injection Prevention (JPA)
 ✅ Password Hashing (BCrypt)
 ✅ JWT Token Validation
