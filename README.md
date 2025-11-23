@@ -285,10 +285,20 @@ Se você usa **VSCode**, instale:
 - [Database Client](https://marketplace.visualstudio.com/items?itemName=cweijan.vscode-database-client2)
 - [Database Client JDBC](https://marketplace.visualstudio.com/items?itemName=cweijan.dbclient-jdbc)
 
-**Configuração Azure (Deploy):**
-```
+**Credenciais para o Banco de Dados:**
+
 Connection String:
+```
 postgresql://rm554874:JobfitScore2025%23@jobfitscore-db-dns.brazilsouth.azurecontainer.io:5432/jobfitscore
+```
+
+Login:
+```
+Host: jobfitscore-db-dns.brazilsouth.azurecontainer.io
+Porta: 5432
+Database: jobfitscore
+Usuário: rm554874
+Senha: JobfitScore2025#
 ```
 
 ---
