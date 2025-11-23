@@ -149,6 +149,7 @@ jobfitscore/
 │       └── 📝 script-bd.sql        # Arquivo SQL 
 └── 📂 dockerfiles/
     └── 🐳 Dockerfile               # Containerização
+```
 
 ### 🗄️ Modelo de Dados
 
